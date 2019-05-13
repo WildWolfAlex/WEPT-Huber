@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Resume - Start Bootstrap Theme</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="#ultraschall">HTL - Car <br>-------------------- Widerin Alexander, Nimit Singh</a>
+		  <video id='v1' width="250" autoplay>
+		  <source src="widerin.mp4" type="video/mp4"></video>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    <section class="resume-section p-3 p-lg-5 d-flex align-items-center" id="ultraschall">
+      <div class="w-100">
+        <h2 class="mb-0">HTL - Car mit Abstandsmessung durch Ultraschallsensoren</h2>
+		<br>
+        <h3> Globaler Programmbereich Parkour</h3>
+<pre>
+        <code>
+#include "FahrzeugLib.h"
+#include <SoftwareSerial.h>
+#include <math.h>
+<span class="des">Hier werden den digitalen Pins am Arduino Namen gegeben: TrigPin zum Aussenden der Ultraschallsignale, 
+und EchoPin als Input zum Empfangen der Signale: Die Präfixe m, l, r gibt an,
+ ob es sich um den mittleren, linken oder rechten Sensor handelt.</span> 
+#define mechoPin 9
+#define mtrigPin 8
+#define lechoPin 6
+#define ltrigPin 7
+#define rechoPin 10
+#define rtrigPin 11
+CMotor MotorLinks(5, 4);
+CMotor MotorRechts(3, 2);
+CAntrieb Antrieb(&MotorLinks, &MotorRechts);
+float velocity = 0;
+float einschlag = 0;
+bool driving=true;
+long mduration;
+int mdistance;
+long lduration;
+int ldistance;
+long rduration;
+int rdistance;
+<span class="des">Inputs, Outputs werden richtig gesetzt und 
+das Auto bei Programmstart erst einmal gerade in Bewegung gebracht.</span>
+void setup() {
+  pinMode(mechoPin, INPUT);
+  pinMode(mtrigPin, OUTPUT);
+  pinMode(lechoPin, INPUT);
+  pinMode(ltrigPin, OUTPUT);
+  pinMode(rechoPin, INPUT);
+  pinMode(rtrigPin, OUTPUT);
+  digitalWrite(mtrigPin, LOW);
+  digitalWrite(ltrigPin, LOW);
+  digitalWrite(rtrigPin, LOW);
+  Serial.begin(9600);
+  Antrieb.Gerade(true,255);
+  //Antrieb.bewegen;
+}
+
+<span class="des">In der Loop wird zuerst bei jedem einzelnen Sensor ein Signal ausgesendet, 
+10 Mikrosekunden gewartet, und dann die Zeit für das Echo empfangen und gespeichert.
+Nach 2 Mikrosekunden ist der nächste Sensor dran, bis alle 3 Zeiten gemessen wurden.</span>
+void loop() {
+  delayMicroseconds(2);
+  digitalWrite(mtrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(mtrigPin, LOW);
+  
+  mduration = pulseIn(mechoPin, HIGH);
+
+  delayMicroseconds(2);
+  digitalWrite(ltrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(ltrigPin, LOW);
+  
+  lduration = pulseIn(lechoPin, HIGH);
+
+  delayMicroseconds(2);
+  digitalWrite(rtrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(rtrigPin, LOW);
+  
+  rduration = pulseIn(rechoPin, HIGH);
+  <span class="des">Über die Zeiten wird die jeweilige Entfernung 
+  mittels der Schallgeschwindigkeit in cm ausgerechnet.</span>
+  mdistance= mduration*0.034/2;
+  ldistance= lduration*0.034/2;
+  rdistance= rduration*0.034/2;
+  Serial.println(mdistance);
+  Serial.println(ldistance);
+  Serial.println(rdistance);
+  Serial.println("hallo");
+  <span class="des">Meldet der mittlere Sensor eine Entfernung zum Hindernis von kleiner gleich 27 cm, 
+  macht das Auto eine komplette Wende. Die Richtung der Wende ist abhängig von den Signalen der anderen 2 Sensoren.</span>
+  if(mdistance<=27){
+    if(ldistance-rdistance<0){
+      Antrieb.Wende(false,190);
+    }
+    else{
+      Antrieb.Wende(true,190);
+    }
+  }
+<span class="des">Meldet der linke oder rechte Sensor eine Entfernung von kleiner gleich 20 cm, 
+wird entweder eine Rechts- bzw. Linkskurve gefahren, deren enge von der Entferunung zum Hindernis abhängt. 
+Je geringer diese ist, desto schärfer die Kurve.
+Meldet keiner der 3 Sensoren derartig geringe Entfernungen, fährt das Auto geradeaus.</span>
+  else if(ldistance<=20){
+    Antrieb.Kurve(100/ldistance,140,true);
+  }
+  else if(rdistance<=20){
+    Antrieb.Kurve(-100/rdistance,140,true);
+  }
+  else{
+    Antrieb.Gerade(true,140);
+  }
+}
+        </code>
+</pre>
+		 
+        </div>
+      </div>
+    </section>
+
+    <hr class="m-0">
+
+
+  </div>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+<style>
+.des{
+	font-size:20px;
+	font-family:Arial;
+}
+</style>
+</body>
+
+</html>
